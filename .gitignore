@@ -1,0 +1,51 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+*.local.json
+appsettings.*.local.json
+
+# .NET build output
+bin/
+obj/
+artifacts/
+
+# .NET test output
+TestResults/
+coverage/
+coverage.*
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.assets.json
+
+# User-specific IDE and tooling files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# Rider / ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker/local runtime data
+docker-compose.override.yml
+*.pid

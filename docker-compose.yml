@@ -1,0 +1,16 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64 # tells Docker to run it emulated
+    container_name: linear_sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+      MSSQL_PID: "Developer" # full-featured, free for dev
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql # persists data across restarts
+
+volumes:
+  mssql_data:
