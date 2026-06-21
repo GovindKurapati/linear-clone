@@ -4,6 +4,7 @@ using LinearClone.Infrastructure.Issues;
 using LinearClone.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +12,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Service registration (the DI container)
 // ---------------------------------------------------------------------------
 
-// Controllers (you chose controllers over Minimal API).
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Accept enum names like "High" instead of numeric values like 2.
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter(allowIntegerValues: false));
+    });
 
 // OpenAPI document generation (first-party, .NET 9+). Scalar renders this.
 builder.Services.AddOpenApi();
