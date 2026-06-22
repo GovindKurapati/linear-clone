@@ -1,7 +1,9 @@
 using LinearClone.Api.Infrastructure;
 using LinearClone.Application.Issues;
+using LinearClone.Application.WorkflowStates;
 using LinearClone.Infrastructure.Issues;
 using LinearClone.Infrastructure.Persistence;
+using LinearClone.Infrastructure.WorkflowStates;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
@@ -30,6 +32,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Application services (controller -> service -> DbContext). Scoped = one per request.
 builder.Services.AddScoped<IIssueService, IssueService>();
+builder.Services.AddScoped<IWorkflowStateService, WorkflowStateService>();
+
 
 // Global exception handling: maps domain exceptions -> HTTP status codes,
 // returns RFC 7807 ProblemDetails. Replaces per-controller try/catch.

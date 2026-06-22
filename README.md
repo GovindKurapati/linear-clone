@@ -6,6 +6,8 @@
 - Frontend: Angular
 - DB: SQL Server
 
+- API Doc: OpenAPI + Scalar
+
 Start docker:
 
 ```

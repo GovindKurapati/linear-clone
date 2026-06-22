@@ -1,0 +1,95 @@
+<!-- Backdrop -->
+<div class="fixed inset-0 z-40 bg-black/40" (click)="close()"></div>
+
+<!-- Slide-over panel from the right -->
+<div
+  class="fixed inset-y-0 right-0 z-50 w-full max-w-md border-l border-zinc-800 bg-zinc-900 shadow-2xl flex flex-col"
+>
+  @if (issue(); as iss) {
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
+      <span class="font-mono text-xs text-zinc-500">{{ iss.identifier }}</span>
+      <button (click)="close()" class="text-zinc-500 hover:text-zinc-300 text-sm">Close</button>
+    </div>
+
+    <!-- Conflict banner: the 409 path made visible -->
+    @if (conflict()) {
+      <div class="border-b border-amber-800/50 bg-amber-950/40 px-4 py-3 text-xs text-amber-300">
+        Someone else changed this issue while you were editing.
+        <button (click)="reload()" class="ml-1 underline hover:text-amber-200">Reload</button>
+        to get the latest, then reapply your changes.
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-1 flex-col overflow-y-auto">
+      <div class="px-4 pt-4">
+        <input
+          formControlName="title"
+          class="w-full bg-transparent text-lg text-zinc-100 outline-none"
+        />
+        @if (form.controls.title.touched && form.controls.title.invalid) {
+          <p class="mt-1 text-xs text-red-400">A title is required.</p>
+        }
+      </div>
+
+      <div class="px-4 pt-2">
+        <textarea
+          formControlName="description"
+          rows="6"
+          placeholder="Add description…"
+          class="w-full resize-none bg-transparent text-sm text-zinc-300 placeholder-zinc-600 outline-none"
+        ></textarea>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 px-4 py-3">
+        <select
+          formControlName="stateId"
+          class="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-xs text-zinc-300 outline-none"
+        >
+          @for (state of states(); track state.id) {
+            <option [value]="state.id">{{ state.name }}</option>
+          }
+        </select>
+        <select
+          formControlName="priority"
+          class="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-xs text-zinc-300 outline-none"
+        >
+          @for (p of priorities; track p) {
+            <option [value]="p">{{ p }}</option>
+          }
+        </select>
+        <input
+          formControlName="estimate"
+          type="number"
+          min="0"
+          placeholder="Est."
+          class="w-16 rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-xs text-zinc-300 placeholder-zinc-600 outline-none"
+        />
+      </div>
+
+      @if (error()) {
+        <p class="px-4 pb-2 text-xs text-red-400">{{ error() }}</p>
+      }
+
+      <!-- Footer actions -->
+      <div class="mt-auto flex items-center justify-between border-t border-zinc-800 px-4 py-3">
+        <button
+          type="button"
+          (click)="remove()"
+          class="rounded px-3 py-1.5 text-sm text-red-400 hover:text-red-300"
+        >
+          Delete
+        </button>
+        <button
+          type="submit"
+          [disabled]="saving()"
+          class="rounded bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+        >
+          {{ saving() ? 'Saving…' : 'Save changes' }}
+        </button>
+      </div>
+    </form>
+  } @else {
+    <div class="px-4 py-10 text-sm text-zinc-500">Loading…</div>
+  }
+</div>

@@ -1,0 +1,86 @@
+<!-- Backdrop -->
+<div class="fixed inset-0 z-40 bg-black/50" (click)="close()"></div>
+
+<!-- Modal -->
+<div class="fixed inset-0 z-50 flex items-start justify-center p-4 pointer-events-none">
+  <div
+    class="mt-24 w-full max-w-2xl rounded-lg border border-zinc-800 bg-zinc-900 shadow-2xl pointer-events-auto"
+  >
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col">
+      <!-- Title: borderless, large — the focal input, Linear-style -->
+      <div class="px-4 pt-4">
+        <input
+          formControlName="title"
+          placeholder="Issue title"
+          autocomplete="off"
+          class="w-full bg-transparent text-lg text-zinc-100 placeholder-zinc-600 outline-none"
+        />
+        @if (form.controls.title.touched && form.controls.title.invalid) {
+          <p class="mt-1 text-xs text-red-400">A title is required.</p>
+        }
+      </div>
+
+      <!-- Description -->
+      <div class="px-4 pt-2">
+        <textarea
+          formControlName="description"
+          placeholder="Add description…"
+          rows="3"
+          class="w-full resize-none bg-transparent text-sm text-zinc-300 placeholder-zinc-600 outline-none"
+        ></textarea>
+      </div>
+
+      <!-- Controls row: state, priority, estimate -->
+      <div class="flex flex-wrap items-center gap-2 px-4 py-3">
+        <select
+          formControlName="stateId"
+          class="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-xs text-zinc-300 outline-none"
+        >
+          <option value="">Default state</option>
+          @for (state of states(); track state.id) {
+            <option [value]="state.id">{{ state.name }}</option>
+          }
+        </select>
+
+        <select
+          formControlName="priority"
+          class="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-xs text-zinc-300 outline-none"
+        >
+          @for (p of priorities; track p) {
+            <option [value]="p">{{ p }}</option>
+          }
+        </select>
+
+        <input
+          formControlName="estimate"
+          type="number"
+          min="0"
+          placeholder="Est."
+          class="w-16 rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-xs text-zinc-300 placeholder-zinc-600 outline-none"
+        />
+      </div>
+
+      @if (error()) {
+        <p class="px-4 pb-2 text-xs text-red-400">{{ error() }}</p>
+      }
+
+      <!-- Footer -->
+      <div class="flex items-center justify-end gap-2 border-t border-zinc-800 px-4 py-3">
+        <button
+          type="button"
+          (click)="close()"
+          class="rounded px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-200"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="saving()"
+          class="rounded bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+        >
+          {{ saving() ? 'Creating…' : 'Create issue' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

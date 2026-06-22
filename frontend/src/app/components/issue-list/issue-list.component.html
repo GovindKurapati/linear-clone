@@ -1,0 +1,93 @@
+<div class="min-h-screen bg-zinc-950 text-zinc-200">
+  <!-- Header -->
+  <header class="flex items-center justify-between border-b border-zinc-800 px-6 py-3">
+    <h1 class="text-sm font-semibold tracking-tight text-zinc-100">Issues</h1>
+    <button
+      type="button"
+      (click)="showCreate.set(true)"
+      class="rounded bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500"
+    >
+      Create issue
+    </button>
+  </header>
+
+  <!-- Loading state -->
+  @if (loading()) {
+    <div class="px-6 py-10 text-sm text-zinc-500">Loading issues…</div>
+  }
+
+  <!-- Error state: direction, not mood -->
+  @if (error()) {
+    <div class="px-6 py-10 text-sm text-red-400">
+      {{ error() }} Check that the API is running and try again.
+    </div>
+  }
+
+  <!-- Grouped list -->
+  @if (!loading() && !error()) {
+    <div class="divide-y divide-zinc-900">
+      @for (group of groups(); track group.state.id) {
+        <section>
+          <!-- State header with count -->
+          <div class="flex items-center gap-2 bg-zinc-900/40 px-6 py-2">
+            <span class="text-xs font-medium uppercase tracking-wide text-zinc-400">
+              {{ group.state.name }}
+            </span>
+            <span class="rounded bg-zinc-800 px-1.5 text-xs text-zinc-500">
+              {{ group.issues.length }}
+            </span>
+          </div>
+
+          <!-- Issues in this state -->
+          @if (group.issues.length > 0) {
+            <ul>
+              @for (issue of group.issues; track issue.id) {
+                <li
+                  (click)="selectedIssueId.set(issue.id)"
+                  class="flex items-center gap-3 px-6 py-2 hover:bg-zinc-900/60 cursor-pointer border-l-2 border-transparent hover:border-zinc-700"
+                >
+                  <!-- Priority dot -->
+                  <span
+                    class="h-2 w-2 shrink-0 rounded-full"
+                    [class]="priorityColor(issue.priority)"
+                  ></span>
+                  <!-- Identifier, mono -->
+                  <span class="font-mono text-xs text-zinc-500 w-20 shrink-0">{{
+                    issue.identifier
+                  }}</span>
+                  <!-- Title -->
+                  <span class="text-sm text-zinc-200 truncate">{{ issue.title }}</span>
+                  <!-- Estimate, pushed right -->
+                  @if (issue.estimate != null) {
+                    <span class="ml-auto text-xs text-zinc-500">{{ issue.estimate }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          } @else {
+            <!-- Empty group: an invitation, quietly -->
+            <div class="px-6 py-2 text-xs text-zinc-600">No issues</div>
+          }
+        </section>
+      }
+    </div>
+  }
+</div>
+
+@if (showCreate()) {
+  <app-create-issue-modal
+    [teamId]="'5a6fcfcf-d1b9-4398-9ae3-738d7c3db021'"
+    [states]="states()"
+    (created)="onCreated($event)"
+    (closed)="showCreate.set(false)"
+  />
+}
+@if (selectedIssueId(); as id) {
+  <app-issue-detail
+    [issueId]="id"
+    [states]="states()"
+    (updated)="onUpdated($event)"
+    (deleted)="onDeleted($event)"
+    (closed)="selectedIssueId.set(null)"
+  />
+}
