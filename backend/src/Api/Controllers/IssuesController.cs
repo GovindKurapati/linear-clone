@@ -43,6 +43,14 @@ public class IssuesController : ControllerBase
         return Ok(result);
     }
 
+    // PATCH /api/issues/{id}/reorder  — move/reorder on the board
+    [HttpPatch("{id:guid}/reorder")]
+    public async Task<IActionResult> Reorder(Guid id, [FromBody] ReorderIssueRequest request, CancellationToken ct)
+    {
+        var result = await _issues.ReorderAsync(id, request, ct);
+        return Ok(result);
+    }
+
     // DELETE /api/issues/{id}  — soft delete
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)

@@ -52,11 +52,12 @@ public class IssueService : IIssueService
         team.NextIssueNumber += 1;
 
         // Generate the sort key: append to the end of the target column.
-        var lastSortKey = await _db.Issues
+        // Position the new issue at the end of its target column: just past the
+        // current max Position in that state (or the default Gap if the column is empty).
+        var maxPosition = await _db.Issues
             .Where(i => i.TeamId == request.TeamId && i.StateId == stateId)
-            .OrderByDescending(i => i.SortKey)
-            .Select(i => i.SortKey)
-            .FirstOrDefaultAsync(ct);
+            .Select(i => (double?)i.Position)
+            .MaxAsync(ct);
 
         var now = DateTime.UtcNow;
         var issue = new Issue
@@ -70,7 +71,7 @@ public class IssueService : IIssueService
             Description = request.Description,
             Priority = request.Priority,
             Estimate = request.Estimate,
-            SortKey = FractionalIndex.KeyAfter(lastSortKey),
+            Position = PositionHelper.Append(maxPosition),
             IsArchived = false,
             CreatedAt = now,
             UpdatedAt = now
@@ -99,7 +100,7 @@ public class IssueService : IIssueService
         // The team Key is pulled via the navigation so we can compose the identifier.
         var items = await _db.Issues
             .Where(i => i.TeamId == teamId && !i.IsArchived)
-            .OrderBy(i => i.StateId).ThenBy(i => i.SortKey)
+            .OrderBy(i => i.StateId).ThenBy(i => i.Position)
             .Select(i => new IssueListItemDto(
                 i.Id,
                 i.StateId,
@@ -108,7 +109,8 @@ public class IssueService : IIssueService
                 i.Title,
                 i.Priority,
                 i.Estimate,
-                i.SortKey))
+                i.Position,
+                i.RowVersion))
             .ToListAsync(ct);
 
         return items;
@@ -160,6 +162,80 @@ public class IssueService : IIssueService
         return ToDto(issue, issue.Team.Key);
     }
 
+    public async Task<IssueDto> ReorderAsync(Guid id, ReorderIssueRequest request, CancellationToken ct = default)
+    {
+        var issue = await _db.Issues
+            .Include(i => i.Team)
+            .FirstOrDefaultAsync(i => i.Id == id, ct)
+            ?? throw new NotFoundException($"Issue {id} not found.");
+
+        // Validate the target state belongs to the issue's team.
+        var stateOk = await _db.WorkflowStates
+            .AnyAsync(s => s.Id == request.TargetStateId && s.TeamId == issue.TeamId, ct);
+        if (!stateOk)
+            throw new InvalidOperationException("Target state does not belong to this issue's team.");
+
+        // Look up the positions of the two neighbors the client dropped between.
+        // Either may be null at a column edge (top or bottom).
+        double? beforePos = request.BeforeIssueId is { } beforeId
+            ? await _db.Issues.Where(i => i.Id == beforeId).Select(i => (double?)i.Position).FirstOrDefaultAsync(ct)
+            : null;
+
+        double? afterPos = request.AfterIssueId is { } afterId
+            ? await _db.Issues.Where(i => i.Id == afterId).Select(i => (double?)i.Position).FirstOrDefaultAsync(ct)
+            : null;
+
+        // If the two neighbors are too close to subdivide, rebalance the target
+        // column first (reassign clean, evenly-spaced positions), then recompute.
+        if (beforePos is { } bp && afterPos is { } ap && PositionHelper.NeedsRebalance(bp, ap))
+        {
+            await RebalanceColumnAsync(issue.TeamId, request.TargetStateId, ct);
+            beforePos = request.BeforeIssueId is { } bId
+                ? await _db.Issues.Where(i => i.Id == bId).Select(i => (double?)i.Position).FirstOrDefaultAsync(ct)
+                : null;
+            afterPos = request.AfterIssueId is { } aId
+                ? await _db.Issues.Where(i => i.Id == aId).Select(i => (double?)i.Position).FirstOrDefaultAsync(ct)
+                : null;
+        }
+
+        issue.StateId = request.TargetStateId;
+        issue.Position = PositionHelper.Between(beforePos, afterPos);
+        issue.UpdatedAt = DateTime.UtcNow;
+
+        // Same optimistic-concurrency guard as UpdateAsync.
+        _db.Entry(issue).Property(i => i.RowVersion).OriginalValue = request.RowVersion;
+
+        try
+        {
+            await _db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new ConcurrencyConflictException(
+                "This issue was modified by someone else. Reload and try again.");
+        }
+
+        return ToDto(issue, issue.Team.Key);
+    }
+
+    // Reassigns clean, evenly-spaced positions to every issue in a column, in their
+    // current order. The rare fallback when a gap between two neighbors is exhausted.
+    private async Task RebalanceColumnAsync(Guid teamId, Guid stateId, CancellationToken ct)
+    {
+        var issues = await _db.Issues
+            .Where(i => i.TeamId == teamId && i.StateId == stateId && !i.IsArchived)
+            .OrderBy(i => i.Position)
+            .ToListAsync(ct);
+
+        var pos = PositionHelper.Gap;
+        foreach (var i in issues)
+        {
+            i.Position = pos;
+            pos += PositionHelper.Gap;
+        }
+        await _db.SaveChangesAsync(ct);
+    }
+
     public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
         var issue = await _db.Issues.FirstOrDefaultAsync(i => i.Id == id, ct)
@@ -183,7 +259,7 @@ public class IssueService : IIssueService
         i.Description,
         i.Priority,
         i.Estimate,
-        i.SortKey,
+        i.Position,
         i.IsArchived,
         i.CreatedAt,
         i.UpdatedAt,

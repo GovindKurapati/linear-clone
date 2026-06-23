@@ -103,7 +103,8 @@ export class IssueListComponent implements OnInit {
         title: issue.title,
         priority: issue.priority,
         estimate: issue.estimate,
-        sortKey: issue.sortKey,
+        position: issue.position,
+        rowVersion: issue.rowVersion,
       },
     ]);
     this.showCreate.set(false);

@@ -26,7 +26,7 @@ public record IssueDto(
     string? Description,
     IssuePriority Priority,
     int? Estimate,
-    string SortKey,
+    double Position,
     bool IsArchived,
     DateTime CreatedAt,
     DateTime UpdatedAt,
@@ -43,7 +43,8 @@ public record UpdateIssueRequest(
     Guid StateId,
     byte[] RowVersion);
 
-// Lightweight projection for list/board views — only what a card needs to render.
+// Lightweight projection for list/board views. Includes RowVersion because the
+// board needs the concurrency token to issue reorder calls without a full re-fetch.
 public record IssueListItemDto(
     Guid Id,
     Guid StateId,
@@ -52,4 +53,15 @@ public record IssueListItemDto(
     string Title,
     IssuePriority Priority,
     int? Estimate,
-    string SortKey);
+    double Position,
+    byte[] RowVersion);
+
+// Reorder/move payload from the board. The client sends the target state and the
+// ids of the issues that will sit immediately above and below the dropped issue
+// (either may be null at a column edge). The server computes the new Position by
+// averaging the neighbors. RowVersion guards against concurrent edits.
+public record ReorderIssueRequest(
+    Guid TargetStateId,
+    Guid? BeforeIssueId,   // the issue directly above the drop point (null = top)
+    Guid? AfterIssueId,    // the issue directly below the drop point (null = bottom)
+    byte[] RowVersion);

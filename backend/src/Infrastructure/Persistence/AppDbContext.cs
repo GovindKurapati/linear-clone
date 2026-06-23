@@ -54,7 +54,6 @@ public class AppDbContext : DbContext
 
             entity.Property(i => i.Title).IsRequired().HasMaxLength(255);
             entity.Property(i => i.Priority).HasConversion<string>().HasMaxLength(20);
-            entity.Property(i => i.SortKey).IsRequired().HasMaxLength(50);
 
             // SQL Server rowversion column for optimistic concurrency.
             // IsRowVersion() maps it to the rowversion type and tells EF to use it as
@@ -87,8 +86,8 @@ public class AppDbContext : DbContext
             // The human-facing identifier (TeamId + Number) must be unique per team.
             entity.HasIndex(i => new { i.TeamId, i.Number }).IsUnique();
 
-            // Board queries filter by team + state and order by SortKey — index supports that.
-            entity.HasIndex(i => new { i.TeamId, i.StateId, i.SortKey });
+            // Board queries filter by team + state and order by Position — index supports that.
+            entity.HasIndex(i => new { i.TeamId, i.StateId, i.Position });
         });
     }
 }

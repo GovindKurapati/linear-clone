@@ -6,14 +6,12 @@ import {
   IssueListItem,
   CreateIssueRequest,
   UpdateIssueRequest,
+  ReorderIssueRequest,
 } from '../models/issue.model';
 
 @Injectable({ providedIn: 'root' })
 export class IssueService {
-  // Modern Angular: inject() instead of constructor injection.
   private readonly http = inject(HttpClient);
-
-  // Relative URL — the dev proxy forwards /api/* to the backend.
   private readonly baseUrl = '/api/issues';
 
   getByTeam(teamId: string): Observable<IssueListItem[]> {
@@ -30,6 +28,10 @@ export class IssueService {
 
   update(id: string, request: UpdateIssueRequest): Observable<Issue> {
     return this.http.put<Issue>(`${this.baseUrl}/${id}`, request);
+  }
+
+  reorder(id: string, request: ReorderIssueRequest): Observable<Issue> {
+    return this.http.patch<Issue>(`${this.baseUrl}/${id}/reorder`, request);
   }
 
   delete(id: string): Observable<void> {

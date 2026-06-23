@@ -17,7 +17,8 @@ export interface IssueListItem {
   title: string;
   priority: IssuePriority;
   estimate: number | null;
-  sortKey: string;
+  position: number;
+  rowVersion: string; // needed so the board can issue reorder calls
 }
 
 // Mirrors IssueDto — the full issue, including the concurrency token.
@@ -32,7 +33,7 @@ export interface Issue {
   description: string | null;
   priority: IssuePriority;
   estimate: number | null;
-  sortKey: string;
+  position: number;
   isArchived: boolean;
   createdAt: string;
   updatedAt: string;
@@ -58,5 +59,14 @@ export interface UpdateIssueRequest {
   priority: IssuePriority;
   estimate: number | null;
   stateId: string;
+  rowVersion: string;
+}
+
+// Mirrors ReorderIssueRequest. Neighbor ids define where the card landed;
+// either is null at a column edge.
+export interface ReorderIssueRequest {
+  targetStateId: string;
+  beforeIssueId: string | null; // issue directly above the drop (null = top)
+  afterIssueId: string | null; // issue directly below the drop (null = bottom)
   rowVersion: string;
 }

@@ -33,8 +33,10 @@ public class Issue
     // Story points / estimate. Nullable because not every issue is estimated.
     public int? Estimate { get; set; }
 
-    // Fractional-index key for board ordering (Phase 2). String holds a LexoRank-style key.
-    public string SortKey { get; set; } = string.Empty;
+    // Sparse numeric ordering key for board position (Phase 2). New items get a
+    // value in a large gap; inserting between two items averages their positions,
+    // so siblings never need renumbering. See PositionHelper.
+    public double Position { get; set; }
 
     // Soft delete. Archived issues stay in the DB for history/recovery.
     public bool IsArchived { get; set; }
