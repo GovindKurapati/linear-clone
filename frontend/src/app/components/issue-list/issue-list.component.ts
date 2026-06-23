@@ -28,7 +28,7 @@ export class IssueListComponent implements OnInit {
 
   // TODO: replace with the real selected team once teams UI exists.
   // Use the seeded ENG team's GUID from your Teams table.
-  private readonly teamId = '5a6fcfcf-d1b9-4398-9ae3-738d7c3db021';
+  readonly teamId = '5a6fcfcf-d1b9-4398-9ae3-738d7c3db021';
 
   // Signals hold the raw fetched data. In a zoneless app these drive change detection.
   readonly issues = signal<IssueListItem[]>([]);

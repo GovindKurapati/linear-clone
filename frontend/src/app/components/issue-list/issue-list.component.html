@@ -76,7 +76,7 @@
 
 @if (showCreate()) {
   <app-create-issue-modal
-    [teamId]="'5a6fcfcf-d1b9-4398-9ae3-738d7c3db021'"
+    [teamId]="teamId"
     [states]="states()"
     (created)="onCreated($event)"
     (closed)="showCreate.set(false)"
