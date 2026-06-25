@@ -12,7 +12,7 @@
 
 ## Guiding principles
 
-- [ ] End every session with something **committed and working** — never leave the repo half-broken
+- [x] End every session with something **committed and working** — never leave the repo half-broken
 - [ ] Stay in **LINQ/EF Core** (no raw T-SQL) through Phase 5 to keep the DB swappable; commit to SQL-Server-specifics deliberately in Phase 6+
 - [ ] Keep the frontend **clean-but-functional** — resist Linear's pixel-polish rabbit hole; your mastery payoff is backend depth
 - [ ] Be able to **articulate the "why"** behind each architectural choice — that's what enterprise interviews probe
@@ -63,33 +63,33 @@
 
 ### Domain & data
 
-- [ ] Entities: `Team`, `WorkflowState` (customizable status, ordered), `Issue` (title, description, priority, estimate, state FK, created/updated)
-- [ ] Self-referencing `Issue.ParentId` for sub-issues
-- [ ] EF Core configurations (Fluent API) for each entity
-- [ ] First migration + apply to SQL Server; verify tables via MSSQL extension
-- [ ] Seed data: one team, a default set of workflow states, a few issues
+- [x] Entities: `Team`, `WorkflowState` (customizable status, ordered), `Issue` (title, description, priority, estimate, state FK, created/updated)
+- [x] Self-referencing `Issue.ParentId` for sub-issues
+- [x] EF Core configurations (Fluent API) for each entity
+- [x] First migration + apply to SQL Server; verify tables via MSSQL extension
+- [x] Seed data: one team, a default set of workflow states, a few issues
 
 ### Vertical slices (CQRS)
 
-- [ ] `CreateIssue` command + validator + handler
-- [ ] `GetIssues` query (by team, with state)
-- [ ] `GetIssueById` query
-- [ ] `UpdateIssue` command
-- [ ] `DeleteIssue` command
-- [ ] Map endpoints (Minimal API or controllers — pick one, note why)
-- [ ] DTOs separate from domain entities
+- [x] `CreateIssue` command + validator + handler
+- [x] `GetIssues` query (by team, with state)
+- [x] `GetIssueById` query
+- [x] `UpdateIssue` command
+- [x] `DeleteIssue` command
+- [x] Map endpoints (Minimal API or controllers — pick one, note why)
+- [x] DTOs separate from domain entities
 
 ### Frontend
 
-- [ ] API client service (typed)
-- [ ] Issue list view (table/list, grouped by state)
-- [ ] Issue detail view + edit form
-- [ ] Create-issue flow
-- [ ] Delete with confirm
+- [x] API client service (typed)
+- [x] Issue list view (table/list, grouped by state)
+- [x] Issue detail view + edit form
+- [x] Create-issue flow
+- [x] Delete with confirm
 
 ### Tests
 
-- [ ] Unit-test one or two handlers (validation + happy path)
+- [x] Unit-test one or two handlers (validation + happy path)
 
 **✅ Deliverable:** You can create, view, edit, and delete issues in the browser, persisted to SQL Server.
 
@@ -99,13 +99,13 @@
 
 **Goal:** A fast, draggable Kanban board with correct ordering.
 
-- [ ] Add `Issue.SortKey` (string) for **fractional indexing** — study LexoRank concept first
-- [ ] Implement a fractional-index helper (generate key between two keys)
-- [ ] `ReorderIssue` command (takes before/after neighbor keys → new key)
-- [ ] Board view in Angular using **`@angular/cdk/drag-drop`**
-- [ ] Drag between columns (changes state) and within a column (changes order)
-- [ ] **Optimistic UI**: update locally first, reconcile with server response, roll back on error
-- [ ] Handle the "drop at top/bottom of empty column" edge cases
+- [x] Add `Issue.SortKey` (string) for **fractional indexing** — study LexoRank concept first
+- [x] Implement a fractional-index helper (generate key between two keys)
+- [x] `ReorderIssue` command (takes before/after neighbor keys → new key)
+- [x] Board view in Angular using **`@angular/cdk/drag-drop`**
+- [x] Drag between columns (changes state) and within a column (changes order)
+- [x] **Optimistic UI**: update locally first, reconcile with server response, roll back on error
+- [x] Handle the "drop at top/bottom of empty column" edge cases
 
 **✅ Deliverable:** A draggable board where reordering one card doesn't rewrite the whole column.
 
@@ -240,5 +240,5 @@
 2. ***
 3. ***
 
-**Last session left off at:** ********\_\_\_\_********
+**Last session left off at:** **\*\*\*\***\_\_\_\_**\*\*\*\***
 **Current phase:** Phase 0
