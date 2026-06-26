@@ -13,9 +13,9 @@
 ## Guiding principles
 
 - [x] End every session with something **committed and working** — never leave the repo half-broken
-- [ ] Stay in **LINQ/EF Core** (no raw T-SQL) through Phase 5 to keep the DB swappable; commit to SQL-Server-specifics deliberately in Phase 6+
-- [ ] Keep the frontend **clean-but-functional** — resist Linear's pixel-polish rabbit hole; your mastery payoff is backend depth
-- [ ] Be able to **articulate the "why"** behind each architectural choice — that's what enterprise interviews probe
+- [x] Stay in **LINQ/EF Core** (no raw T-SQL) through Phase 5 to keep the DB swappable; commit to SQL-Server-specifics deliberately in Phase 6+
+- [x] Keep the frontend **clean-but-functional** — resist Linear's pixel-polish rabbit hole; your mastery payoff is backend depth
+- [x] Be able to **articulate the "why"** behind each architectural choice — that's what enterprise interviews probe
 
 ---
 
@@ -25,33 +25,33 @@
 
 ### Environment
 
-- [ ] Install/confirm latest **Docker Desktop**; enable Settings → General → "Use Rosetta for x86/amd64 emulation"
-- [ ] Install **.NET 8 SDK** (`dotnet --version` confirms)
-- [ ] Install **Node.js LTS** + **Angular CLI** (`npm i -g @angular/cli`)
-- [ ] Install **VS Code** + extensions: C# Dev Kit, **MSSQL**, Angular Language Service
-- [ ] Bring up **SQL Server 2022** via `docker-compose.yml` (see code I gave you), confirm connection from the MSSQL extension
+- [x] Install/confirm latest **Docker Desktop**; enable Settings → General → "Use Rosetta for x86/amd64 emulation"
+- [x] Install **.NET 8 SDK** (`dotnet --version` confirms)
+- [x] Install **Node.js LTS** + **Angular CLI** (`npm i -g @angular/cli`)
+- [x] Install **VS Code** + extensions: C# Dev Kit, **MSSQL**, Angular Language Service
+- [x] Bring up **SQL Server 2022** via `docker-compose.yml` (see code I gave you), confirm connection from the MSSQL extension
 
 ### Backend skeleton
 
-- [ ] `dotnet new sln -n LinearClone`
-- [ ] Create projects: `Api` (web), `Application`, `Domain`, `Infrastructure` + `Api.Tests`
-- [ ] Wire project references (Api → Application → Domain; Infrastructure → Application)
-- [ ] Add NuGet packages: MediatR, FluentValidation, EF Core + SqlServer provider, Serilog
-- [ ] Add a `GET /health` endpoint that returns OK
-- [ ] Configure Serilog request logging
-- [ ] First EF Core `DbContext` (empty) + connection string in `appsettings.Development.json`
+- [x] `dotnet new sln -n LinearClone`
+- [x] Create projects: `Api` (web), `Application`, `Domain`, `Infrastructure` + `Api.Tests`
+- [x] Wire project references (Api → Application → Domain; Infrastructure → Application)
+- [x] Add NuGet packages: MediatR, FluentValidation, EF Core + SqlServer provider, Serilog
+- [x] Add a `GET /health` endpoint that returns OK
+- [x] Configure Serilog request logging
+- [x] First EF Core `DbContext` (empty) + connection string in `appsettings.Development.json`
 
 ### Frontend skeleton
 
-- [ ] `ng new linear-web` (standalone components, routing, SCSS)
-- [ ] Add Angular Material **or** PrimeNG (pick one, note the choice)
-- [ ] Configure environment file with API base URL + a proxy for local dev (avoid CORS pain)
-- [ ] One page that calls `/health` and renders the result
+- [x] `ng new linear-web` (standalone components, routing, SCSS)
+- [x] Add Angular Material **or** PrimeNG (pick one, note the choice)
+- [x] Configure environment file with API base URL + a proxy for local dev (avoid CORS pain)
+- [x] One page that calls `/health` and renders the result
 
 ### Repo hygiene
 
-- [ ] `git init`, sensible `.gitignore` (.NET + Node), first commit
-- [ ] Add this `ROADMAP.md` and a short `README.md`
+- [x] `git init`, sensible `.gitignore` (.NET + Node), first commit
+- [x] Add this `ROADMAP.md` and a short `README.md`
 
 **✅ Deliverable:** Empty app — Angular page shows backend health status; SQL Server running in Docker; all committed.
 
