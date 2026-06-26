@@ -1,0 +1,84 @@
+<div class="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
+  <div class="w-full max-w-sm">
+    <!-- Brand -->
+    <div class="mb-8 text-center">
+      <h1 class="text-lg font-semibold tracking-tight text-zinc-100">Linear Clone</h1>
+      <p class="mt-1 text-sm text-zinc-500">
+        {{ mode() === 'login' ? 'Sign in to your workspace' : 'Create your workspace' }}
+      </p>
+    </div>
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      class="space-y-3 rounded-lg border border-zinc-800 bg-zinc-900 p-5"
+    >
+      <div>
+        <label class="mb-1 block text-xs text-zinc-400">Email</label>
+        <input
+          formControlName="email"
+          type="email"
+          autocomplete="email"
+          class="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-indigo-500"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <p class="mt-1 text-xs text-red-400">Enter a valid email.</p>
+        }
+      </div>
+
+      <div>
+        <label class="mb-1 block text-xs text-zinc-400">Password</label>
+        <input
+          formControlName="password"
+          type="password"
+          autocomplete="current-password"
+          class="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-indigo-500"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <p class="mt-1 text-xs text-red-400">At least 8 characters.</p>
+        }
+      </div>
+
+      <!-- Register-only fields -->
+      @if (mode() === 'register') {
+        <div>
+          <label class="mb-1 block text-xs text-zinc-400">Display name</label>
+          <input
+            formControlName="displayName"
+            type="text"
+            class="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-indigo-500"
+          />
+        </div>
+        <div>
+          <label class="mb-1 block text-xs text-zinc-400">Workspace name</label>
+          <input
+            formControlName="workspaceName"
+            type="text"
+            placeholder="Acme Corp"
+            class="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-indigo-500"
+          />
+        </div>
+      }
+
+      @if (error()) {
+        <p class="text-xs text-red-400">{{ error() }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="loading()"
+        class="w-full rounded bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+      >
+        {{ loading() ? 'Please wait…' : mode() === 'login' ? 'Sign in' : 'Create workspace' }}
+      </button>
+    </form>
+
+    <!-- Mode toggle -->
+    <p class="mt-4 text-center text-xs text-zinc-500">
+      {{ mode() === 'login' ? "Don't have a workspace?" : 'Already have one?' }}
+      <button (click)="toggleMode()" class="ml-1 text-indigo-400 hover:text-indigo-300">
+        {{ mode() === 'login' ? 'Create one' : 'Sign in' }}
+      </button>
+    </p>
+  </div>
+</div>

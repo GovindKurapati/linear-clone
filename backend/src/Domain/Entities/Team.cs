@@ -4,6 +4,9 @@ public class Team
 {
     public Guid Id { get; set; }
 
+    // The workspace (tenant) this team belongs to.
+    public Guid WorkspaceId { get; set; }
+
     // Display name, e.g. "Engineering"
     public string Name { get; set; } = string.Empty;
 
@@ -17,6 +20,7 @@ public class Team
     public DateTime CreatedAt { get; set; }
 
     // Navigation properties
+    public Workspace Workspace { get; set; } = null!;
     public ICollection<WorkflowState> WorkflowStates { get; set; } = new List<WorkflowState>();
     public ICollection<Issue> Issues { get; set; } = new List<Issue>();
 }

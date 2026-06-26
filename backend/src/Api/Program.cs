@@ -7,8 +7,19 @@ using LinearClone.Infrastructure.WorkflowStates;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
+using LinearClone.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
+using LinearClone.Application.Auth;
+using LinearClone.Infrastructure.Auth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using LinearClone.Application.Common;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Bind JWT settings from config
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
 // ---------------------------------------------------------------------------
 // Service registration (the DI container)
@@ -22,6 +33,16 @@ builder.Services.AddControllers()
             new JsonStringEnumConverter(allowIntegerValues: false));
     });
 
+builder.Services
+    .AddIdentityCore<ApplicationUser>(options =>
+    {
+        // Reasonable dev defaults; tighten for production.
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddEntityFrameworkStores<AppDbContext>();
+
 // OpenAPI document generation (first-party, .NET 9+). Scalar renders this.
 builder.Services.AddOpenApi();
 
@@ -34,11 +55,37 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IIssueService, IssueService>();
 builder.Services.AddScoped<IWorkflowStateService, WorkflowStateService>();
 
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+
 
 // Global exception handling: maps domain exceptions -> HTTP status codes,
 // returns RFC 7807 ProblemDetails. Replaces per-controller try/catch.
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings.Key)),
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 
 var app = builder.Build();
 
@@ -57,6 +104,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
 // ---------------------------------------------------------------------------
@@ -66,7 +116,9 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await DbSeeder.SeedAsync(db);
+    var userManager = scope.ServiceProvider
+        .GetRequiredService<UserManager<ApplicationUser>>();
+    await DbSeeder.SeedAsync(db, userManager);
 }
 
 app.Run();

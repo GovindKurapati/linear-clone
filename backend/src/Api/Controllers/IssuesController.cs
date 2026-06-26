@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using LinearClone.Application.Issues;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LinearClone.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class IssuesController : ControllerBase
